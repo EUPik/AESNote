@@ -1,0 +1,64 @@
+# Project Manifest: AESNote
+
+## 1. Project Overview
+- Name: AESNote
+- Concept: Single-file, browser-native, local-first encrypted rich-text editor.
+- Goal: Securely edit local .ptxt files. No data or passwords ever leave the browser memory.
+- Philosophy: Open Source, Zero-Knowledge, Cross-Platform.
+
+## 2. Technical Stack
+- Architecture: Single .html file (HTML5/CSS3/JS).
+- UI: Tailwind CSS (CDN).
+- Editor: Responsive Rich-Text (RTF) using contenteditable or a lightweight library.
+- Cryptography: Web Crypto API (AES-GCM 256-bit, PBKDF2, 600,000 iterations, 16-byte salt).
+- File API: File System Access API (showDirectoryPicker, showOpenFilePicker).
+
+## 3. UI Layout & Component Placement
+- Top Banner (Fixed): Brand "AESNote" (Left), Breadcrumb Path (Center), [New, Open, Save, Menu] (Right).
+- Sidebar (Collapsible): List of .ptxt files from the selected local directory.
+- Main Editor: Central responsive rich-text area.
+- Password Modal: Centered overlay with masked input; clears immediately after use.
+- Status Bar (Bottom): Word/Char count and Security status (Encryption: AES-256-GCM).
+
+## 4. Storage & Persistence
+- Data: Encrypted binary .ptxt files [Salt(16) + IV(12) + Ciphertext].
+- Folder Access: Store DirectoryHandle in IndexedDB (allows re-verifying access).
+- Settings: Theme/Last file stored in localStorage.
+- Passwords: Memory-only (NEVER stored).
+
+## 5. Agent Instructions
+Build AESNote as a single HTML file. Use Tailwind for mobile-adaptive UI. Implement AES-GCM 256 encryption via Web Crypto API. Use File System Access API for local storage. Ensure the password modal is the only way to unlock files.
+
+## 6. Implemented Features & Recent Changes ✅
+- Editor toolbar: Bold/Italic/Underline and ordered/unordered list shortcuts implemented using `document.execCommand`.
+- Responsive header & compact mode: header detects overflow and automatically switches to a compact layout (force threshold ~540px). In compact mode non-menu buttons are hidden and a single `Menu` button (iconized) exposes a dropdown of actions (New, Open, Save, Save As, Toggle Theme).
+- Compact menu behavior: dropdown positions itself relative to the menu button; clicking outside closes it; compact styling tweaks for small screens.
+- Mobile-first adjustments: sidebar is hidden on narrow screens, header buttons expand to fill width, editor uses full width. CSS media queries added for `max-width: 640px` and `420px` to refine layout.
+- File system integration: directory selection and listing of `.ptxt` files; the directory picker now explicitly requests **read/write** permission when selecting a folder and validates/request permissions for persisted handles on load.
+  - Added a **Grant Access** button in the breadcrumb when a persisted directory lacks permission; clicking it attempts to request read/write access for the stored handle and refreshes the file list on success.
+  File handles are persisted in IndexedDB (`AESNoteDB`, object store `directoryHandle`, key `handle`) and validated on load. `showOpenFilePicker` uses `startIn` when possible.
+- Save / Save As behavior: `Save` re-uses the session password (if available) and `Save As` prompts for a new password. Overwrite is confirmed if a file exists. The save flow now explicitly requests **write** permission for the selected directory and (where supported) for the file handle. If permission is denied the UI prompts users to use the **Grant Access** breadcrumb action. When direct file writes fail, the app attempts fallback flows: using `showSaveFilePicker` for the user to pick a writable location, and as a last resort initiates a browser download of the file (so the user can manually save the data).
+- File format & encryption details: files saved as binary `.ptxt` with format [Salt(16) + IV(12) + Ciphertext], using PBKDF2 (600,000 iterations, SHA-256) to derive an AES-GCM-256 key.
+- Delete support: delete files via `directoryHandle.removeEntry()` with confirmation; UI updates (hides delete button when no file selected).
+- Password modal & unlocking: password modal shows file name, unlock process reads file bytes, decrypts, and loads decrypted HTML into the editor. Empty decrypted content is handled gracefully.
+- Permission checks & fallbacks: `ensureDirectoryPermission` and `ensureFilePermission` check for `queryPermission`/`requestPermission` when supported and safely fall back if APIs are missing.
+- Layout & UX improvements: dynamic editor height calculation (accounts for header/footer), word/char counter, status messages for saves/opens/deletes/permission issues with auto-clearing timeouts, and helpful breadcrumb labels (folder name only for privacy).
+- Theme persistence: light/dark toggle stored in `localStorage` under key `theme`.
+- Robust error handling: extensive console warnings and user-facing status lines to help debugging and explain permission or crypto failures.
+
+## 7. Known Limitations ⚠️
+- Browser support: File System Access API (and permission query/request methods) are not available in all browsers. Fallback behavior is included but full functionality requires a supporting browser (Chromium-based recommended).
+- OS path privacy: full OS paths are intentionally not exposed by the browser; breadcrumbs show folder names only.
+- No persistent password storage: passwords are kept in memory only (by design) — users must re-enter when starting a new session or when explicitly required.
+- No sync or cloud storage is implemented (local-only, zero-knowledge by design).
+
+## 8. Next Steps & TODO 🔧
+- Add keyboard shortcuts (Save, Open, New, Delete, Toggle Theme).
+- Add file rename capability and safer conflict resolution flows (e.g., safe temporary saves / atomic replacements).
+- Improve accessibility (ARIA roles, focus management for modal and compact menu, high-contrast support).
+- Add unit and integration tests for crypto functions and file I/O fallbacks.
+- Consider richer editor features (paste sanitization, formatting toolbar expansion, templates) and an opt-in export/import feature for interoperability.
+
+**Changelog:**
+- v0.1 (2025-12-23): Implemented features listed above: responsive compact header, compact menu, directory persistence (IndexedDB), Save/Save As/Save fallback, Delete, password modal unlocking, PBKDF2 + AES-GCM crypto, permission handling, theme toggle, and various UX improvements.
+- Fix (2025-12-23): Resolved a save failure caused by a JavaScript ReferenceError when `fileName` was used before initialization; save flow now declares `fileName` up-front and adds safer prompts and fallbacks for permission and write failures.
