@@ -1,0 +1,51 @@
+header { box-shadow: 0 2px 8px rgba(0,0,0,0.12); z-index: 20; position: relative; margin-bottom: 0; }
+#mainContent { box-sizing: border-box; position: relative; margin-top: 0; }
+#headerButtons { position: relative; display: flex; align-items: center; }
+/* Compact mode: hide non-menu buttons and show dropdown; align menu to right */
+#headerButtons.compact { justify-content: flex-end; gap: 0; }
+#headerButtons.compact > button:not(#menuBtn) { display: none !important; }
+#headerButtons.compact > #menuBtn { margin-left: 0.25rem; position: relative; }
+#headerButtons.compact > button { flex: 0 0 auto; }
+
+/* When compact, make the menu button small and icon-focused */
+#menuBtn.compact { width: 36px; height: 32px; padding: .1rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; border-radius: 6px; box-sizing: border-box; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: white; }
+/* More specific rule to override utility classes when compact */
+#headerButtons.compact > #menuBtn.compact { background: transparent !important; border: 1px solid rgba(255,255,255,0.15) !important; color: white !important; padding: 0 !important; min-width: 36px !important; width: 36px !important; height: 32px !important; }
+
+/* Breadcrumb stacks vertically when header is compact to avoid overlap */
+#breadcrumb.compact-breadcrumb { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+#breadcrumb.compact-breadcrumb .small-label { font-size: 0.9rem; color: rgba(255,255,255,0.9); }
+
+#compactMenu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: white; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 0.25rem; z-index: 30; min-width: 160px; }
+#compactMenu.show { display: block; }
+#compactMenu button { display: block; width: 100%; text-align: left; padding: .6rem .8rem; border: none; background: transparent; color: #0f172a; border-radius: 4px; }
+#compactMenu button:hover { background: rgba(15,23,42,0.06); }
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+    /* Hide sidebar to give editor full width */
+    #sidebar { display: none !important; }
+
+    /* Stack main content vertically so editor occupies full width */
+    #mainContent { flex-direction: column; width: 100%; overflow-x: hidden; }
+    main { width: 100%; }
+
+    /* Make header buttons take proportional width and wrap in portrait */
+    #headerButtons { display: flex !important; gap: .5rem; flex-wrap: wrap; }
+    #headerButtons button { flex: 1 1 auto; min-width: 0; padding: .5rem .6rem; font-size: .95rem; }
+
+    /* Ensure editor fills available width and doesn't cause horizontal overflow */
+    #editor { width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; overflow-y: auto; padding-left: .5rem; padding-right: .5rem; word-break: break-word; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 1.35rem; line-height: 1.2; }
+
+    /* Slight adjustments to breadcrumb on narrow screens */
+    #breadcrumb { font-size: .9rem; padding: 0 .5rem; }
+}
+
+/* Extra small screens: reduce breadcrumb padding so it doesn't force horizontal scrolling */
+@media (max-width: 420px) {
+    #breadcrumb.compact-breadcrumb { padding-right: 56px !important; }
+    #menuBtn.compact { min-width: 32px !important; width: 32px !important; }
+}
+
+/* Make editor use border-box and never exceed container width (global safeguard) */
+#editor { box-sizing: border-box; max-width: 100%; width: 100%; overflow-wrap: anywhere; word-break: break-word; }
