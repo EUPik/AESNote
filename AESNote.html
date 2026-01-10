@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,60 +8,196 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
-        header { box-shadow: 0 2px 8px rgba(0,0,0,0.12); z-index: 20; position: relative; margin-bottom: 0; }
-        #mainContent { box-sizing: border-box; position: relative; margin-top: 0; }
-        #headerButtons { position: relative; display: flex; align-items: center; }
+        header {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            z-index: 20;
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        #mainContent {
+            box-sizing: border-box;
+            position: relative;
+            margin-top: 0;
+        }
+
+        #headerButtons {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
         /* Compact mode: hide non-menu buttons and show dropdown; align menu to right */
-        #headerButtons.compact { justify-content: flex-end; gap: 0; }
-        #headerButtons.compact > button:not(#menuBtn) { display: none !important; }
-        #headerButtons.compact > #menuBtn { margin-left: 0.25rem; position: relative; }
-        #headerButtons.compact > button { flex: 0 0 auto; }
+        #headerButtons.compact {
+            justify-content: flex-end;
+            gap: 0;
+        }
+
+        #headerButtons.compact>button:not(#menuBtn) {
+            display: none !important;
+        }
+
+        #headerButtons.compact>#menuBtn {
+            margin-left: 0.25rem;
+            position: relative;
+        }
+
+        #headerButtons.compact>button {
+            flex: 0 0 auto;
+        }
 
         /* When compact, make the menu button small and icon-focused */
-        #menuBtn.compact { width: 36px; height: 32px; padding: .1rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; border-radius: 6px; box-sizing: border-box; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: white; }
+        #menuBtn.compact {
+            width: 36px;
+            height: 32px;
+            padding: .1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
         /* More specific rule to override utility classes when compact */
-        #headerButtons.compact > #menuBtn.compact { background: transparent !important; border: 1px solid rgba(255,255,255,0.15) !important; color: white !important; padding: 0 !important; min-width: 36px !important; width: 36px !important; height: 32px !important; }
+        #headerButtons.compact>#menuBtn.compact {
+            background: transparent !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: white !important;
+            padding: 0 !important;
+            min-width: 36px !important;
+            width: 36px !important;
+            height: 32px !important;
+        }
 
         /* Breadcrumb stacks vertically when header is compact to avoid overlap */
-        #breadcrumb.compact-breadcrumb { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        #breadcrumb.compact-breadcrumb .small-label { font-size: 0.9rem; color: rgba(255,255,255,0.9); }
+        #breadcrumb.compact-breadcrumb {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
 
-        #compactMenu { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: white; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.15); padding: 0.25rem; z-index: 30; min-width: 160px; }
-        #compactMenu.show { display: block; }
-        #compactMenu button { display: block; width: 100%; text-align: left; padding: .6rem .8rem; border: none; background: transparent; color: #0f172a; border-radius: 4px; }
-        #compactMenu button:hover { background: rgba(15,23,42,0.06); }
+        #breadcrumb.compact-breadcrumb .small-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #compactMenu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 0.25rem;
+            z-index: 30;
+            min-width: 160px;
+        }
+
+        #compactMenu.show {
+            display: block;
+        }
+
+        #compactMenu button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: .6rem .8rem;
+            border: none;
+            background: transparent;
+            color: #0f172a;
+            border-radius: 4px;
+        }
+
+        #compactMenu button:hover {
+            background: rgba(15, 23, 42, 0.06);
+        }
 
         /* Mobile-specific adjustments */
         @media (max-width: 640px) {
+
             /* Hide sidebar to give editor full width */
-            #sidebar { display: none !important; }
+            #sidebar {
+                display: none !important;
+            }
 
             /* Stack main content vertically so editor occupies full width */
-            #mainContent { flex-direction: column; width: 100%; overflow-x: hidden; }
-            main { width: 100%; }
+            #mainContent {
+                flex-direction: column;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            main {
+                width: 100%;
+            }
 
             /* Make header buttons take proportional width and wrap in portrait */
-            #headerButtons { display: flex !important; gap: .5rem; flex-wrap: wrap; }
-            #headerButtons button { flex: 1 1 auto; min-width: 0; padding: .5rem .6rem; font-size: .95rem; }
+            #headerButtons {
+                display: flex !important;
+                gap: .5rem;
+                flex-wrap: wrap;
+            }
+
+            #headerButtons button {
+                flex: 1 1 auto;
+                min-width: 0;
+                padding: .5rem .6rem;
+                font-size: .95rem;
+            }
 
             /* Ensure editor fills available width and doesn't cause horizontal overflow */
-            #editor { width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: auto; overflow-y: auto; padding-left: .5rem; padding-right: .5rem; word-break: break-word; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 1.35rem; line-height: 1.2; }
+            #editor {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow-x: auto;
+                overflow-y: auto;
+                padding-left: .5rem;
+                padding-right: .5rem;
+                word-break: break-word;
+                overflow-wrap: anywhere;
+                white-space: pre-wrap;
+                font-size: 1.35rem;
+                line-height: 1.2;
+            }
 
             /* Slight adjustments to breadcrumb on narrow screens */
-            #breadcrumb { font-size: .9rem; padding: 0 .5rem; }
+            #breadcrumb {
+                font-size: .9rem;
+                padding: 0 .5rem;
+            }
         }
 
         /* Extra small screens: reduce breadcrumb padding so it doesn't force horizontal scrolling */
         @media (max-width: 420px) {
-            #breadcrumb.compact-breadcrumb { padding-right: 56px !important; }
-            #menuBtn.compact { min-width: 32px !important; width: 32px !important; }
+            #breadcrumb.compact-breadcrumb {
+                padding-right: 56px !important;
+            }
+
+            #menuBtn.compact {
+                min-width: 32px !important;
+                width: 32px !important;
+            }
         }
 
         /* Make editor use border-box and never exceed container width (global safeguard) */
-        #editor { box-sizing: border-box; max-width: 100%; width: 100%; overflow-wrap: anywhere; word-break: break-word; }
-
+        #editor {
+            box-sizing: border-box;
+            max-width: 100%;
+            width: 100%;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
     </style>
 </head>
+
 <body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white">
     <!-- Top Banner -->
     <header class="bg-blue-600 text-white p-2 fixed top-0 left-0 right-0 z-10">
@@ -72,7 +209,8 @@
                 <button id="openBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Open</button>
                 <button id="saveBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Save</button>
                 <button id="saveAsBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Save As</button>
-                <button id="deleteBtn" class="bg-red-500 hover:bg-red-700 px-4 py-2 rounded" style="display: none;">Delete</button>
+                <button id="deleteBtn" class="bg-red-500 hover:bg-red-700 px-4 py-2 rounded"
+                    style="display: none;">Delete</button>
                 <button id="menuBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Menu</button>
 
                 <!-- Compact dropdown menu (used when header is too narrow) -->
@@ -98,13 +236,20 @@
         <!-- Editor -->
         <main class="flex-1 p-1">
             <div class="mb-2 space-x-2 dark:bg-black">
-                <button onclick="document.execCommand('bold')" class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">B</button>
-                <button onclick="document.execCommand('italic')" class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">I</button>
-                <button onclick="document.execCommand('underline')" class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">U</button>
-                <button onclick="insertUnorderedList()" class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">•</button>
-                <button onclick="insertOrderedList()" class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">1.</button>
+                <button onclick="document.execCommand('bold')"
+                    class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">B</button>
+                <button onclick="document.execCommand('italic')"
+                    class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">I</button>
+                <button onclick="document.execCommand('underline')"
+                    class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">U</button>
+                <button onclick="insertUnorderedList()"
+                    class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">•</button>
+                <button onclick="insertOrderedList()"
+                    class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">1.</button>
             </div>
-            <div id="editor" contenteditable="true" class="w-full h-full border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:text-white rounded shadow text-lg"></div>
+            <div id="editor" contenteditable="true"
+                class="w-full h-full border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:text-white rounded shadow text-lg">
+            </div>
         </main>
     </div>
 
@@ -117,17 +262,19 @@
         </div>
     </footer>
 
-        <!-- Password Modal -->
-        <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
-            <div class="bg-white p-6 rounded shadow-lg">
-                <h3 class="text-lg font-semibold mb-4">Enter Password <span id="passwordFileName" class="text-sm text-gray-500"></span></h3>
-                <input type="password" id="passwordInput" class="border border-gray-300 p-2 w-full mb-4" placeholder="Password">
-                <div class="flex justify-end space-x-2">
-                    <button id="cancelBtn" class="bg-gray-500 hover:bg-gray-700 px-4 py-2 rounded">Cancel</button>
-                    <button id="unlockBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Unlock</button>
-                </div>
+    <!-- Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded shadow-lg">
+            <h3 class="text-lg font-semibold mb-4">Enter Password <span id="passwordFileName"
+                    class="text-sm text-gray-500"></span></h3>
+            <input type="password" id="passwordInput" class="border border-gray-300 p-2 w-full mb-4"
+                placeholder="Password">
+            <div class="flex justify-end space-x-2">
+                <button id="cancelBtn" class="bg-gray-500 hover:bg-gray-700 px-4 py-2 rounded">Cancel</button>
+                <button id="unlockBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Unlock</button>
             </div>
         </div>
+    </div>
 
     <script>
         // Global variables
@@ -772,6 +919,7 @@
             } else {
                 isEncrypted = true;
                 document.getElementById('passwordModal').classList.remove('hidden');
+                setTimeout(() => document.getElementById('passwordInput').focus(), 100);
             }
         }
 
@@ -934,7 +1082,7 @@
                 if (sidebarEl) sidebarEl.classList.add('hidden');
                 if (headerButtons) {
                     headerButtons.classList.remove('space-x-2');
-                    headerButtons.classList.add('flex','flex-row','justify-between','gap-2','w-full');
+                    headerButtons.classList.add('flex', 'flex-row', 'justify-between', 'gap-2', 'w-full');
                     Array.from(headerButtons.querySelectorAll('button')).forEach(b => {
                         b.style.flex = '1';
                         b.style.padding = '0.5rem';
@@ -952,7 +1100,7 @@
                 if (sidebarEl) sidebarEl.classList.remove('hidden');
                 if (headerButtons) {
                     headerButtons.classList.add('space-x-2');
-                    headerButtons.classList.remove('flex','flex-row','justify-between','gap-2','w-full');
+                    headerButtons.classList.remove('flex', 'flex-row', 'justify-between', 'gap-2', 'w-full');
                     Array.from(headerButtons.querySelectorAll('button')).forEach(b => {
                         b.style.flex = '';
                         b.style.padding = '';
@@ -977,28 +1125,28 @@
                 const editor = document.getElementById('editor');
                 const headerHeight = header ? header.offsetHeight : 0;
                 const footerHeight = footer ? footer.offsetHeight : 0;
-                
+
                 // Apply padding to main content so header does not overlap
                 if (main) {
                     // Remove any existing padding-top first, then apply new value
                     main.style.paddingTop = '';
                     // Apply exact header height to ensure no gap
                     main.style.paddingTop = headerHeight + 'px';
-                    
+
                     // Also ensure mainContent has proper positioning to work with fixed header
                     main.style.position = 'relative';
                     main.style.top = '0';
-                    
+
                     // Remove any margin that might cause gaps
                     main.style.marginTop = '0';
-                    
+
                     // Ensure no border spacing
                     main.style.borderTop = '0';
-                    
+
                     // Force the padding to be applied by setting it again
                     main.style.paddingTop = headerHeight + 'px';
                 }
-                
+
                 // Set editor height to fit between header and footer
                 if (editor) {
                     const extra = 12; // small gap
@@ -1152,7 +1300,7 @@
         window.addEventListener('load', applyLayout);
         window.addEventListener('resize', applyLayout);
         window.addEventListener('orientationchange', applyLayout);
-        
+
         // Initial layout will be handled by the load event listener
 
         // Event listeners
@@ -1174,6 +1322,9 @@
             }
         };
         document.getElementById('unlockBtn').onclick = unlockFile;
+        document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') unlockFile();
+        });
         document.getElementById('cancelBtn').onclick = () => {
             document.getElementById('passwordModal').classList.add('hidden');
             document.getElementById('passwordInput').value = '';
@@ -1223,4 +1374,5 @@
         }, 1000);
     </script>
 </body>
+
 </html>
