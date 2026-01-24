@@ -984,7 +984,20 @@
             // We display the folder name and a helpful tooltip instead.
             breadcrumb.innerHTML = '';
             if (directoryHandle && directoryHandle.name) {
-                breadcrumb.innerHTML = `<span title="Full path not available in browser; showing folder name only">${directoryHandle.name}</span> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
+                // Create clickable folder span
+                const folderSpan = document.createElement('span');
+                folderSpan.className = 'cursor-pointer hover:underline font-bold';
+                folderSpan.title = 'Click to change folder';
+                folderSpan.textContent = directoryHandle.name;
+                folderSpan.onclick = () => selectDirectory();
+                breadcrumb.appendChild(folderSpan);
+
+                // Create file label span
+                const fileLabel = document.createElement('span');
+                fileLabel.id = 'currentFileLabel';
+                fileLabel.className = 'ml-2 text-sm text-gray-200';
+                breadcrumb.appendChild(fileLabel);
+
                 const btn = document.getElementById('selectDirBtn');
                 if (btn) btn.remove();
 
