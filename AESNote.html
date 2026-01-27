@@ -75,14 +75,15 @@
                 <button id="deleteBtn" class="bg-red-500 hover:bg-red-700 px-4 py-2 rounded" style="display: none;">Delete</button>
                 <button id="menuBtn" class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded">Menu</button>
 
-                <!-- Compact dropdown menu (used when header is too narrow) -->
-                <div id="compactMenu" aria-hidden="true">
-                    <button id="compactNew">New</button>
-                    <button id="compactOpen">Open</button>
-                    <button id="compactSave">Save</button>
-                    <button id="compactSaveAs">Save As</button>
-                    <button id="compactToggleTheme">Toggle Theme</button>
-                </div>
+                 <!-- Compact dropdown menu (used when header is too narrow) -->
+                 <div id="compactMenu" aria-hidden="true">
+                     <button id="compactNew">New</button>
+                     <button id="compactOpen">Open</button>
+                     <button id="compactSave">Save</button>
+                     <button id="compactSaveAs">Save As</button>
+                     <button id="compactSelectDir">Select Directory</button>
+                     <button id="compactToggleTheme">Toggle Theme</button>
+                 </div>
             </div>
         </div>
     </header>
@@ -153,7 +154,7 @@
             };
         }
 
-        // Load directory handle from IndexedDB
+         // Load directory handle from IndexedDB
         async function loadDirectoryHandle() {
             if (!db) return;
             const transaction = db.transaction(['directoryHandle'], 'readonly');
@@ -186,7 +187,8 @@
                     updateBreadcrumb();
                     listFiles();
                 } else {
-                    selectDirectory();
+                    // Do not call selectDirectory() here as it requires user gesture
+                    updateBreadcrumb();
                 }
             };
             request.onerror = () => {
@@ -214,7 +216,7 @@
         async function requestDirectoryAccess() {
             if (!directoryHandle) {
                 // No persisted handle; fall back to asking the user to select one
-                await selectDirectory();
+                // Do not call selectDirectory() here as it requires user gesture
                 return;
             }
             try {
@@ -346,6 +348,11 @@
         // File operations
         async function selectDirectory() {
             try {
+                // Check if the browser supports the File System Access API
+                if (!('showDirectoryPicker' in window)) {
+                    alert('Your browser does not support directory selection. Please use Chrome or Edge with the latest updates.');
+                    return;
+                }
                 const handle = await window.showDirectoryPicker();
                 // Ensure we have read/write permission for the selected directory
                 const hasPerm = await ensureDirectoryPermission(handle, 'readwrite');
@@ -369,6 +376,12 @@
                 listFiles();
             } catch (error) {
                 console.error('Error selecting directory:', error);
+                // Provide a more detailed error message for Microsoft Edge
+                if (error.name === 'TypeError') {
+                    alert('Directory selection is not supported in this browser. Please use Chrome or Edge with the latest updates.');
+                } else if (error.name !== 'NotAllowedError') {
+                    alert('Failed to select directory: ' + (error.message || error.name || 'Unknown error'));
+                }
             }
         }
 
@@ -444,9 +457,8 @@
 
                 // Ensure handle is valid and we have write permission
                 if (!isValidDirectoryHandle(directoryHandle)) {
-                    document.getElementById('saveStatus').textContent = 'Invalid directory handle; please re-select directory';
+                    document.getElementById('saveStatus').textContent = 'Invalid directory handle; please re-select directory by clicking the breadcrumb';
                     setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
-                    await selectDirectory();
                     return;
                 }
                 // Check write permission and try to request it if not already granted
@@ -665,7 +677,7 @@
         }
 
         // Save As convenience
-        document.getElementById('saveAsBtn').onclick = () => saveFile({ forceSaveAs: true });
+        document.getElementById('saveAsBtn').addEventListener('click', () => saveFile({ forceSaveAs: true }));
 
         // Delete file
         async function deleteFile() {
@@ -836,7 +848,7 @@
             // We display the folder name and a helpful tooltip instead.
             breadcrumb.innerHTML = '';
             if (directoryHandle && directoryHandle.name) {
-                breadcrumb.innerHTML = `<span title="Full path not available in browser; showing folder name only">${directoryHandle.name}</span> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
+                breadcrumb.innerHTML = `<button id="currentDirBtn" class="bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded text-white" onclick="selectDirectory()">${directoryHandle.name}</button> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
                 const btn = document.getElementById('selectDirBtn');
                 if (btn) btn.remove();
 
@@ -864,15 +876,15 @@
             } else {
                 breadcrumb.innerHTML = '';
                 // Create a clear button to prompt the user to select a directory
-                const btn = document.createElement('button');
+                 const btn = document.createElement('button');
                 btn.id = 'selectDirBtn';
                 btn.className = 'bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded text-white';
                 btn.textContent = 'No directory selected — Click to select';
-                btn.onclick = async () => {
+                btn.addEventListener('click', async () => {
                     await selectDirectory();
                     // after selecting, ensure we update breadcrumb and list files
                     updateBreadcrumb();
-                };
+                });
                 breadcrumb.appendChild(btn);
             }
         }
@@ -1135,13 +1147,20 @@
                 hideCompactMenu();
             }
         });
+        document.getElementById('compactNew').addEventListener('click', () => { hideCompactMenu(); document.getElementById('newBtn').click(); });
+        document.getElementById('compactOpen').addEventListener('click', () => { hideCompactMenu(); document.getElementById('openBtn').click(); });
+        document.getElementById('compactSave').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveBtn').click(); });
+        document.getElementById('compactSaveAs').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveAsBtn').click(); });
+        document.getElementById('compactSelectDir').addEventListener('click', () => { hideCompactMenu(); selectDirectory(); });
+        document.getElementById('compactToggleTheme').addEventListener('click', () => { hideCompactMenu(); toggleTheme(); });
 
         // Close the compact menu when selecting an entry (also forward to main handlers)
-        document.getElementById('compactNew').onclick = () => { hideCompactMenu(); document.getElementById('newBtn').click(); };
-        document.getElementById('compactOpen').onclick = () => { hideCompactMenu(); document.getElementById('openBtn').click(); };
-        document.getElementById('compactSave').onclick = () => { hideCompactMenu(); document.getElementById('saveBtn').click(); };
-        document.getElementById('compactSaveAs').onclick = () => { hideCompactMenu(); document.getElementById('saveAsBtn').click(); };
-        document.getElementById('compactToggleTheme').onclick = () => { hideCompactMenu(); toggleTheme(); };
+        document.getElementById('compactNew').addEventListener('click', () => { hideCompactMenu(); document.getElementById('newBtn').click(); });
+        document.getElementById('compactOpen').addEventListener('click', () => { hideCompactMenu(); document.getElementById('openBtn').click(); });
+        document.getElementById('compactSave').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveBtn').click(); });
+        document.getElementById('compactSaveAs').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveAsBtn').click(); });
+        document.getElementById('compactSelectDir').addEventListener('click', () => { hideCompactMenu(); selectDirectory(); });
+        document.getElementById('compactToggleTheme').addEventListener('click', () => { hideCompactMenu(); toggleTheme(); });
 
         // Run both responsive layout and spacing adjustments together
         const applyLayout = () => {
@@ -1173,15 +1192,32 @@
                 document.getElementById('deleteBtn').style.display = 'none';
             }
         };
-        document.getElementById('unlockBtn').onclick = unlockFile;
-        document.getElementById('cancelBtn').onclick = () => {
+        document.getElementById('openBtn').addEventListener('click', selectFile);
+        document.getElementById('saveBtn').addEventListener('click', saveFile);
+        document.getElementById('deleteBtn').addEventListener('click', deleteFile);
+        document.getElementById('newBtn').addEventListener('click', () => {
+            const name = prompt('Enter file name (without extension):');
+            if (name) {
+                newFileName = name;
+                document.getElementById('editor').innerHTML = '';
+                currentFileHandle = null;
+                currentPassword = null;
+                isEncrypted = false; // default to plain, will be set on save
+                updateWordCount();
+                updateSecurityStatus();
+                const lbl = document.getElementById('currentFileLabel'); if (lbl) lbl.textContent = `/${name}`;
+                document.getElementById('deleteBtn').style.display = 'none';
+            }
+        });
+        document.getElementById('unlockBtn').addEventListener('click', unlockFile);
+        document.getElementById('cancelBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').classList.add('hidden');
             document.getElementById('passwordInput').value = '';
             const pfn = document.getElementById('passwordFileName'); if (pfn) pfn.textContent = '';
             const lbl = document.getElementById('currentFileLabel'); if (lbl) lbl.textContent = '';
             document.getElementById('deleteBtn').style.display = 'none';
-        };
-        document.getElementById('editor').oninput = updateWordCount;
+        });
+        document.getElementById('editor').addEventListener('input', updateWordCount);
 
         // Settings
         function loadSettings() {
@@ -1204,7 +1240,7 @@
         };
 
         // Menu button: main click handled by the compact-menu toggle; theme toggle is now available inside the compact menu
-        document.getElementById('menuBtn').onclick = () => { /* no-op (menu handled by compact menu) */ };
+        document.getElementById('menuBtn').addEventListener('click', () => { /* no-op (menu handled by compact menu) */ });
 
         // Initialize
         initDB();
