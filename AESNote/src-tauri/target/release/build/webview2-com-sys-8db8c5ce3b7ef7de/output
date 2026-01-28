@@ -1,0 +1,2 @@
+cargo:rustc-link-search=native=c:\Temp\AESNote\AESNote\src-tauri\target\release\build\webview2-com-sys-8db8c5ce3b7ef7de\out\x64
+cargo:rustc-link-lib=advapi32
