@@ -784,10 +784,14 @@
             } else {
                 isEncrypted = true;
                 document.getElementById('passwordModal').classList.remove('hidden');
+                const passwordInput = document.getElementById('passwordInput');
+                passwordInput.focus();
+                console.log('Password modal opened, input focused:', document.activeElement === passwordInput);
             }
         }
 
         async function unlockFile() {
+            console.log('unlockFile called');
             const password = document.getElementById('passwordInput').value;
             if (!password) return;
             try {
@@ -1210,6 +1214,12 @@
             }
         });
         document.getElementById('unlockBtn').addEventListener('click', unlockFile);
+        document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                console.log('Enter pressed in password input');
+                unlockFile();
+            }
+        });
         document.getElementById('cancelBtn').addEventListener('click', () => {
             document.getElementById('passwordModal').classList.add('hidden');
             document.getElementById('passwordInput').value = '';
