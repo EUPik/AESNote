@@ -320,6 +320,21 @@
         </div>
     </div>
 
+    <!-- File List Modal (Mobile) -->
+    <div id="fileListModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 px-4">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-full max-w-sm max-h-[80vh] flex flex-col">
+            <h3 class="text-lg font-semibold mb-4 dark:text-white border-b pb-2">Select File</h3>
+            <div id="modalFileList" class="flex-1 overflow-y-auto space-y-1 mb-4 min-h-[100px]">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="flex justify-end pt-2 border-t mt-auto">
+                <button id="closeFileListBtn"
+                    class="bg-gray-500 hover:bg-gray-700 px-4 py-2 rounded text-white w-full">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Password Modal -->
     <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
         <div class="bg-white p-6 rounded shadow-lg">
@@ -647,12 +662,29 @@
                     const response = await fetch(`${serverUrl}?action=list&username=${encodeURIComponent(apiUsername)}&key=${encodeURIComponent(apiKey)}`);
                     if (!response.ok) throw new Error('Failed to fetch from server');
                     const files = await response.json();
+
+                    const modalFileList = document.getElementById('modalFileList');
+                    if (modalFileList) modalFileList.innerHTML = '';
+
                     files.forEach(file => {
+                        // Desktop sidebar list
                         const li = document.createElement('li');
                         li.textContent = file.filename;
                         li.className = 'cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 p-2 rounded';
-                        li.onclick = () => loadFile(file.filename);
+                        li.onclick = () => { loadFile(file.filename); if (isMobileDevice()) document.getElementById('fileListModal').classList.add('hidden'); };
                         fileList.appendChild(li);
+
+                        // Mobile modal list
+                        if (modalFileList) {
+                            const mBtn = document.createElement('button');
+                            mBtn.textContent = file.filename;
+                            mBtn.className = 'w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded border-b dark:border-gray-700 dark:text-gray-200';
+                            mBtn.onclick = () => {
+                                loadFile(file.filename);
+                                document.getElementById('fileListModal').classList.add('hidden');
+                            };
+                            modalFileList.appendChild(mBtn);
+                        }
                     });
                 } catch (error) {
                     console.error('Error listing server files:', error);
@@ -1196,10 +1228,10 @@
                 hideCompactMenu();
             }
         });
-        document.getElementById('compactNew').addEventListener('click', () => { hideCompactMenu(); document.getElementById('newBtn').click(); });
-        document.getElementById('compactOpen').addEventListener('click', () => { hideCompactMenu(); document.getElementById('openBtn').click(); });
-        document.getElementById('compactSave').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveBtn').click(); });
-        document.getElementById('compactSaveAs').addEventListener('click', () => { hideCompactMenu(); document.getElementById('saveAsBtn').click(); });
+        document.getElementById('compactNew').addEventListener('click', () => { hideCompactMenu(); newFileAction(); });
+        document.getElementById('compactOpen').addEventListener('click', () => { hideCompactMenu(); openFileAction(); });
+        document.getElementById('compactSave').addEventListener('click', () => { hideCompactMenu(); saveFile(); });
+        document.getElementById('compactSaveAs').addEventListener('click', () => { hideCompactMenu(); saveFile({ forceSaveAs: true }); });
         document.getElementById('compactSelectDir').addEventListener('click', () => { hideCompactMenu(); selectDirectory(); });
         document.getElementById('compactServerSettings').addEventListener('click', () => { hideCompactMenu(); openServerModal(); });
         document.getElementById('compactToggleTheme').addEventListener('click', () => { hideCompactMenu(); toggleTheme(); });
@@ -1216,8 +1248,8 @@
 
         // Initial layout will be handled by the load event listener
 
-        // Event listeners
-        document.getElementById('newBtn').onclick = () => {
+        // Action functions
+        function newFileAction() {
             const name = prompt('Enter file name (e.g. note.ptxt or note.txt):');
             if (name) {
                 newFileName = name;
@@ -1231,7 +1263,24 @@
                 const lbl = document.getElementById('currentFileLabel'); if (lbl) lbl.textContent = `/${name}`;
                 document.getElementById('deleteBtn').style.display = 'none';
             }
-        };
+        }
+
+        function openFileAction() {
+            if (serverUrl && apiUsername) {
+                // Optimized for both mobile and desktop: show file selection modal
+                document.getElementById('fileListModal').classList.remove('hidden');
+                listFiles();
+            } else if (!directoryHandle && !apiUsername) {
+                // If no directory or user, prompt for server settings
+                openServerModal();
+            } else {
+                // Fall back to local file picker (select file manually)
+                selectFile();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('newBtn').onclick = newFileAction;
 
         // Server Modal Logic
         let serverMode = 'login'; // 'login' or 'register'
@@ -1303,17 +1352,29 @@
             }
 
             // Normal login/save
-            serverUrl = newUrl;
-            apiUsername = newUser;
-            apiKey = newKey;
+            // Verify credentials before saving
+            try {
+                const resp = await fetch(`${newUrl}?action=list&username=${encodeURIComponent(newUser)}&key=${encodeURIComponent(newKey)}`);
+                if (!resp.ok) {
+                    const data = await resp.json().catch(() => ({}));
+                    throw new Error(data.error || 'Incorrect username or API key');
+                }
 
-            localStorage.setItem('serverUrl', serverUrl);
-            localStorage.setItem('apiUsername', apiUsername);
-            localStorage.setItem('apiKey', apiKey);
+                // Only save if verification succeeded
+                serverUrl = newUrl;
+                apiUsername = newUser;
+                apiKey = newKey;
 
-            document.getElementById('serverModal').classList.add('hidden');
-            updateBreadcrumb();
-            listFiles();
+                localStorage.setItem('serverUrl', serverUrl);
+                localStorage.setItem('apiUsername', apiUsername);
+                localStorage.setItem('apiKey', apiKey);
+
+                document.getElementById('serverModal').classList.add('hidden');
+                updateBreadcrumb();
+                listFiles();
+            } catch (e) {
+                alert('Login failed: ' + e.message);
+            }
         };
 
         document.getElementById('applyChangeKeyBtn').onclick = async () => {
@@ -1341,14 +1402,11 @@
             }
         };
 
-        document.getElementById('openBtn').addEventListener('click', () => {
-            if (serverUrl) {
-                // In server mode, files are listed in sidebar. 
-                // We could add a quick search or just rely on list.
-            } else {
-                selectFile();
-            }
-        });
+        document.getElementById('openBtn').addEventListener('click', openFileAction);
+
+        document.getElementById('closeFileListBtn').onclick = () => {
+            document.getElementById('fileListModal').classList.add('hidden');
+        };
         document.getElementById('saveBtn').onclick = () => saveFile();
         document.getElementById('saveAsBtn').onclick = () => saveFile({ forceSaveAs: true });
         document.getElementById('deleteBtn').onclick = () => {
