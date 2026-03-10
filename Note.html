@@ -219,8 +219,7 @@
                     <button id="compactOpen">Open</button>
                     <button id="compactSave">Save</button>
                     <button id="compactSaveAs">Save As</button>
-                    <button id="compactSelectDir">Select Directory</button>
-                    <button id="compactServerSettings">Server Settings</button>
+                    <button id="compactStorage">Storage Destination</button>
                     <button id="compactToggleTheme">Toggle Theme</button>
                 </div>
             </div>
@@ -264,58 +263,95 @@
         </div>
     </footer>
 
-    <!-- Server Settings Modal -->
-    <div id="serverModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-96 max-h-[90vh] overflow-y-auto">
-            <h3 class="text-lg font-semibold mb-4 dark:text-white" id="serverModalTitle">Server Settings</h3>
+    <!-- Storage Settings Modal -->
+    <div id="storageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div
+            class="bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-[450px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-6 dark:text-white text-center">Storage Destination</h3>
 
-            <!-- Mode Toggle -->
-            <div class="flex mb-4 bg-gray-100 dark:bg-gray-700 rounded p-1">
-                <button id="modeLoginBtn"
-                    class="flex-1 py-1 rounded bg-white dark:bg-gray-600 shadow-sm text-sm font-medium">Login</button>
-                <button id="modeRegisterBtn"
-                    class="flex-1 py-1 rounded text-sm font-medium text-gray-500 dark:text-gray-400">Register</button>
+            <!-- Storage Type Tabs -->
+            <div class="flex mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+                <button id="tabLocalBtn"
+                    class="flex-1 py-2 rounded-md transition-all duration-200 text-sm font-semibold">Local
+                    Folder</button>
+                <button id="tabServerBtn"
+                    class="flex-1 py-2 rounded-md transition-all duration-200 text-sm font-semibold">Cloud Sync</button>
             </div>
 
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Server API URL</label>
-                    <input type="text" id="serverUrlInput"
-                        class="border border-gray-300 p-2 w-full dark:bg-gray-700 dark:text-white rounded"
-                        placeholder="https://your-server.com/api.php">
+            <!-- Tab: Local Folder -->
+            <div id="tabLocalContent" class="space-y-6">
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <p class="text-xs uppercase tracking-wider text-blue-600 dark:text-blue-400 font-bold mb-2">Current
+                        Location</p>
+                    <div id="localPathDisplay" class="text-sm font-mono break-all dark:text-gray-300">No folder selected
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-                    <input type="text" id="apiUsernameInput"
-                        class="border border-gray-300 p-2 w-full dark:bg-gray-700 dark:text-white rounded"
-                        placeholder="Your Username">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" id="apiKeyLabel">API
-                        Key</label>
-                    <input type="password" id="apiKeyInput"
-                        class="border border-gray-300 p-2 w-full dark:bg-gray-700 dark:text-white rounded"
-                        placeholder="Your Secret Key">
-                </div>
-
-                <!-- Change Key Section (Hidden by default) -->
-                <div id="changeKeySection" class="hidden pt-4 border-t border-gray-200 dark:border-gray-600">
-                    <h4 class="text-sm font-bold mb-2 dark:text-white">Change API Key</h4>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New API Key</label>
-                    <input type="password" id="newApiKeyInput"
-                        class="border border-gray-300 p-2 w-full dark:bg-gray-700 dark:text-white rounded"
-                        placeholder="New Secret Key">
-                    <button id="applyChangeKeyBtn"
-                        class="mt-2 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded text-sm">Update
-                        Key</button>
-                </div>
+                <button id="modalSelectDirBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-blue-500/30">
+                    Select Local Folder
+                </button>
+                <p class="text-xs text-center text-gray-500 dark:text-gray-400 italic">
+                    Best for local files. Requires browser permission.
+                </p>
             </div>
 
-            <div class="flex justify-end space-x-2 mt-6">
-                <button id="closeServerBtn"
-                    class="bg-gray-500 hover:bg-gray-700 px-4 py-2 rounded text-white">Cancel</button>
+            <!-- Tab: Cloud Sync -->
+            <div id="tabServerContent" class="hidden space-y-5">
+                <!-- Mode Toggle -->
+                <div class="flex bg-gray-50 dark:bg-gray-900 rounded p-1 border dark:border-gray-700">
+                    <button id="modeLoginBtn"
+                        class="flex-1 py-1.5 rounded text-xs font-bold uppercase transition-all duration-200">Login</button>
+                    <button id="modeRegisterBtn"
+                        class="flex-1 py-1.5 rounded text-xs font-bold uppercase transition-all duration-200">Register</button>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Server API URL</label>
+                        <input type="text" id="serverUrlInput"
+                            class="border border-gray-300 p-2.5 w-full dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            placeholder="https://your-server.com/api.php">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Username</label>
+                        <input type="text" id="apiUsernameInput"
+                            class="border border-gray-300 p-2.5 w-full dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            placeholder="Your Username">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="apiKeyLabel">API
+                            Key</label>
+                        <input type="password" id="apiKeyInput"
+                            class="border border-gray-300 p-2.5 w-full dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            placeholder="Your Secret Key">
+                    </div>
+
+                    <!-- Change Key Section (Hidden by default) -->
+                    <div id="changeKeySection" class="hidden pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="text-xs font-bold mb-3 dark:text-white uppercase tracking-tight text-gray-400">
+                            Security: Change API Key</h4>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">New API Key</label>
+                        <input type="password" id="newApiKeyInput"
+                            class="border border-gray-300 p-2.5 w-full dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                            placeholder="New Secret Key">
+                        <button id="applyChangeKeyBtn"
+                            class="mt-3 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2 rounded-lg text-sm font-bold shadow-lg shadow-yellow-600/20">
+                            Update Security Key
+                        </button>
+                    </div>
+                </div>
+
                 <button id="saveServerBtn"
-                    class="bg-blue-500 hover:bg-blue-700 px-4 py-2 rounded text-white">Connect</button>
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-green-500/30">
+                    Connect & Sync
+                </button>
+            </div>
+
+            <div class="flex justify-center mt-8">
+                <button id="closeStorageBtn"
+                    class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm font-bold">
+                    Cancel
+                </button>
             </div>
         </div>
     </div>
@@ -361,10 +397,25 @@
         let db = null;
         let newFileName = null;
 
+        // Detect if running from a server (http/https) vs local file (file:)
+        function isHosted() {
+            return window.location.protocol === 'http:' || window.location.protocol === 'https:';
+        }
+
         // Server variables
-        let serverUrl = localStorage.getItem('serverUrl') || 'https://bookmark.page.gd/AESNote/server/api.php';
+        let serverUrl = localStorage.getItem('serverUrl');
+        let isServerAvailable = isHosted(); // Default to true if hosted
+
+        if (!serverUrl) {
+            if (isHosted()) {
+                serverUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/server/api.php';
+            } else {
+                serverUrl = 'https://bookmark.page.gd/AESNote/server/api.php';
+            }
+        }
         let apiUsername = localStorage.getItem('apiUsername') || '';
         let apiKey = localStorage.getItem('apiKey') || '';
+        let storageMode = localStorage.getItem('storageMode') || (apiUsername ? 'server' : 'local');
 
         // Initialize IndexedDB
         function initDB() {
@@ -598,9 +649,18 @@
                     }
                 }
                 directoryHandle = handle;
+                storageMode = 'local';
+                localStorage.setItem('storageMode', 'local');
                 saveDirectoryHandle();
                 updateBreadcrumb();
                 listFiles();
+                // Close modal on success
+                const modal = document.getElementById('storageModal');
+                if (modal) modal.classList.add('hidden');
+
+                // If we manually select a directory, we definitely want local mode
+                document.getElementById('saveStatus').textContent = 'Switched to Local Storage';
+                setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
             } catch (error) {
                 console.error('Error selecting directory:', error);
                 // Provide a more detailed error message for Microsoft Edge
@@ -657,7 +717,7 @@
             const fileList = document.getElementById('fileList');
             fileList.innerHTML = '';
 
-            if (serverUrl) {
+            if (storageMode === 'server' && serverUrl && apiUsername) {
                 try {
                     const response = await fetch(`${serverUrl}?action=list&username=${encodeURIComponent(apiUsername)}&key=${encodeURIComponent(apiKey)}`);
                     if (!response.ok) throw new Error('Failed to fetch from server');
@@ -705,13 +765,18 @@
 
         async function saveFile({ forceSaveAs = false } = {}) {
             try {
-                if (!serverUrl && !directoryHandle) {
-                    document.getElementById('saveStatus').textContent = 'No storage configured (Server or Local)';
+                if (!serverUrl && storageMode === 'server') {
+                    document.getElementById('saveStatus').textContent = 'Server URL not configured';
+                    setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
+                    return;
+                }
+                if (!directoryHandle && storageMode === 'local') {
+                    document.getElementById('saveStatus').textContent = 'No local directory selected';
                     setTimeout(() => document.getElementById('saveStatus').textContent = '', 3000);
                     return;
                 }
 
-                let fileName = serverUrl ? currentFileName : (currentFileHandle ? currentFileHandle.name : null);
+                let fileName = (storageMode === 'server') ? currentFileName : (currentFileHandle ? currentFileHandle.name : null);
                 let password = currentPassword;
 
                 if (forceSaveAs || (!fileName && !newFileName)) {
@@ -755,7 +820,7 @@
                     dataToSave = content;
                 }
 
-                if (serverUrl) {
+                if (storageMode === 'server') {
                     const response = await fetch(`${serverUrl}?action=write&username=${encodeURIComponent(apiUsername)}&filename=${encodeURIComponent(fileName)}&key=${encodeURIComponent(apiKey)}`, {
                         method: 'POST',
                         body: dataToSave
@@ -805,11 +870,11 @@
         }
 
         async function deleteFile() {
-            const fileName = serverUrl ? currentFileName : (currentFileHandle ? currentFileHandle.name : null);
+            const fileName = (storageMode === 'server') ? currentFileName : (currentFileHandle ? currentFileHandle.name : null);
             if (!fileName) return;
 
             try {
-                if (serverUrl) {
+                if (storageMode === 'server') {
                     const response = await fetch(`${serverUrl}?action=delete&username=${encodeURIComponent(apiUsername)}&filename=${encodeURIComponent(fileName)}&key=${encodeURIComponent(apiKey)}`, {
                         method: 'DELETE'
                     });
@@ -844,7 +909,7 @@
                 let fileName;
                 let data;
 
-                if (serverUrl) {
+                if (storageMode === 'server') {
                     fileName = handleOrName; // handleOrName is filename string
                     const response = await fetch(`${serverUrl}?action=read&username=${encodeURIComponent(apiUsername)}&filename=${encodeURIComponent(fileName)}&key=${encodeURIComponent(apiKey)}`);
                     if (!response.ok) throw new Error('Failed to read from server');
@@ -898,7 +963,7 @@
             const password = document.getElementById('passwordInput').value;
             if (!password) return;
             try {
-                if (!serverUrl) {
+                if (storageMode === 'local') {
                     if (!currentFileHandle || !isValidFileHandle(currentFileHandle)) {
                         throw new Error('Invalid file handle');
                     }
@@ -948,26 +1013,34 @@
             const breadcrumb = document.getElementById('breadcrumb');
             breadcrumb.innerHTML = '';
 
-            if (serverUrl) {
-                const host = new URL(serverUrl).hostname;
-                if (apiUsername) {
-                    breadcrumb.innerHTML = `<button id="serverBtn" class="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-white" onclick="openServerModal()">[Server] ${apiUsername}@${host}</button> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
-                } else {
-                    breadcrumb.innerHTML = `<button id="serverBtn" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-white" onclick="openServerModal()">[Server] Not Connected@${host}</button> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
-                }
-            } else if (directoryHandle && directoryHandle.name) {
-                breadcrumb.innerHTML = `<button id="currentDirBtn" class="bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded text-white" onclick="selectDirectory()">${directoryHandle.name}</button> <span id="currentFileLabel" class="ml-2 text-sm text-gray-200"></span>`;
+            const container = document.createElement('div');
+            container.className = 'inline-flex items-center space-x-1';
+
+            if (storageMode === 'server') {
+                const host = serverUrl ? new URL(serverUrl).hostname : 'No server';
+                const btn = document.createElement('button');
+                btn.className = `bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-white font-medium text-sm transition-colors`;
+                btn.innerHTML = `<span class="opacity-70 mr-1">Cloud:</span> ${apiUsername || 'Login'}@${host}`;
+                btn.onclick = () => openStorageModal('server');
+                container.appendChild(btn);
             } else {
                 const btn = document.createElement('button');
-                btn.id = 'selectDirBtn';
-                btn.className = 'bg-blue-500 hover:bg-blue-700 px-3 py-1 rounded text-white';
-                btn.textContent = 'No storage — Click to select directory or Server Settings';
-                btn.addEventListener('click', () => {
-                    // Toggle between local and potentially opening menu
-                    selectDirectory();
-                });
-                breadcrumb.appendChild(btn);
+                btn.className = `bg-blue-500 hover:bg-blue-600 px-3 py-1 rounded text-white font-medium text-sm transition-colors`;
+                const dirName = (directoryHandle && directoryHandle.name) ? directoryHandle.name : 'Select Folder';
+                btn.innerHTML = `<span class="opacity-70 mr-1">Local:</span> ${dirName}`;
+                btn.onclick = () => openStorageModal('local');
+                container.appendChild(btn);
             }
+
+            const fileLabel = document.createElement('span');
+            fileLabel.id = 'currentFileLabel';
+            fileLabel.className = 'ml-2 text-sm text-gray-200 font-mono';
+            if (currentFileName || (currentFileHandle && currentFileHandle.name)) {
+                fileLabel.textContent = ` / ${currentFileName || currentFileHandle.name}`;
+            }
+
+            breadcrumb.appendChild(container);
+            breadcrumb.appendChild(fileLabel);
         }
 
         function updateWordCount() {
@@ -1232,8 +1305,7 @@
         document.getElementById('compactOpen').addEventListener('click', () => { hideCompactMenu(); openFileAction(); });
         document.getElementById('compactSave').addEventListener('click', () => { hideCompactMenu(); saveFile(); });
         document.getElementById('compactSaveAs').addEventListener('click', () => { hideCompactMenu(); saveFile({ forceSaveAs: true }); });
-        document.getElementById('compactSelectDir').addEventListener('click', () => { hideCompactMenu(); selectDirectory(); });
-        document.getElementById('compactServerSettings').addEventListener('click', () => { hideCompactMenu(); openServerModal(); });
+        document.getElementById('compactStorage').addEventListener('click', () => { hideCompactMenu(); openStorageModal(); });
         document.getElementById('compactToggleTheme').addEventListener('click', () => { hideCompactMenu(); toggleTheme(); });
 
         // Run both responsive layout and spacing adjustments together
@@ -1247,6 +1319,80 @@
         window.addEventListener('orientationchange', applyLayout);
 
         // Initial layout will be handled by the load event listener
+
+        // Dynamic server availability check
+        async function checkServerAbility() {
+            if (isHosted()) {
+                isServerAvailable = true;
+                updateBreadcrumb();
+                return true;
+            }
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 1500);
+                const resp = await fetch(serverUrl + '?action=list', { method: 'HEAD', signal: controller.signal });
+                clearTimeout(timeoutId);
+                isServerAvailable = true;
+            } catch (e) {
+                isServerAvailable = false;
+            }
+            updateBreadcrumb();
+            // Also hide/show the compact menu item
+            const compactSS = document.getElementById('compactStorage');
+            if (compactSS) {
+                // We keep it visible but the Cloud tab might be restricted
+                compactSS.style.display = 'block';
+            }
+        }
+
+        // Integrated Storage Modal Logic
+        function openStorageModal(initialTab = null) {
+            document.getElementById('serverUrlInput').value = serverUrl;
+            document.getElementById('apiUsernameInput').value = apiUsername;
+            document.getElementById('apiKeyInput').value = apiKey;
+            document.getElementById('localPathDisplay').textContent = (directoryHandle && directoryHandle.name) ? directoryHandle.name : 'No folder selected';
+
+            // Show/Hide change key section
+            if (serverUrl && apiUsername) {
+                document.getElementById('changeKeySection').classList.remove('hidden');
+                document.getElementById('saveServerBtn').textContent = 'Update URL/User';
+            } else {
+                document.getElementById('changeKeySection').classList.add('hidden');
+                document.getElementById('saveServerBtn').textContent = serverMode === 'login' ? 'Sync' : 'Register Now';
+            }
+
+            updateServerModeUI();
+
+            // Set initial tab
+            const targetTab = initialTab || storageMode;
+            switchTab(targetTab);
+
+            document.getElementById('storageModal').classList.remove('hidden');
+        }
+
+        function switchTab(tab) {
+            const localBtn = document.getElementById('tabLocalBtn');
+            const serverBtn = document.getElementById('tabServerBtn');
+            const localContent = document.getElementById('tabLocalContent');
+            const serverContent = document.getElementById('tabServerContent');
+
+            if (tab === 'local') {
+                localBtn.className = "flex-1 py-2 rounded-md bg-white dark:bg-gray-600 shadow-sm text-sm font-bold text-blue-600 dark:text-white";
+                serverBtn.className = "flex-1 py-2 rounded-md text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-gray-700/50";
+                localContent.classList.remove('hidden');
+                serverContent.classList.add('hidden');
+            } else {
+                serverBtn.className = "flex-1 py-2 rounded-md bg-white dark:bg-gray-600 shadow-sm text-sm font-bold text-green-600 dark:text-white";
+                localBtn.className = "flex-1 py-2 rounded-md text-sm font-semibold text-gray-500 dark:text-gray-400 hover:bg-gray-200/50 dark:hover:bg-gray-700/50";
+                serverContent.classList.remove('hidden');
+                localContent.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('tabLocalBtn').onclick = () => switchTab('local');
+        document.getElementById('tabServerBtn').onclick = () => switchTab('server');
+        document.getElementById('modalSelectDirBtn').onclick = () => selectDirectory();
+        document.getElementById('closeStorageBtn').onclick = () => document.getElementById('storageModal').classList.add('hidden');
 
         // Action functions
         function newFileAction() {
@@ -1266,16 +1412,19 @@
         }
 
         function openFileAction() {
-            if (serverUrl && apiUsername) {
-                // Optimized for both mobile and desktop: show file selection modal
-                document.getElementById('fileListModal').classList.remove('hidden');
-                listFiles();
-            } else if (!directoryHandle && !apiUsername) {
-                // If no directory or user, prompt for server settings
-                openServerModal();
+            if (storageMode === 'server') {
+                if (serverUrl && apiUsername) {
+                    document.getElementById('fileListModal').classList.remove('hidden');
+                    listFiles();
+                } else {
+                    openStorageModal('server');
+                }
             } else {
-                // Fall back to local file picker (select file manually)
-                selectFile();
+                if (directoryHandle) {
+                    selectFile();
+                } else {
+                    openStorageModal('local');
+                }
             }
         }
 
@@ -1285,23 +1434,6 @@
         // Server Modal Logic
         let serverMode = 'login'; // 'login' or 'register'
 
-        function openServerModal() {
-            document.getElementById('serverUrlInput').value = serverUrl;
-            document.getElementById('apiUsernameInput').value = apiUsername;
-            document.getElementById('apiKeyInput').value = apiKey;
-
-            // If connected, show "Change Key" section
-            if (serverUrl && apiUsername) {
-                document.getElementById('changeKeySection').classList.remove('hidden');
-                document.getElementById('saveServerBtn').textContent = 'Update URL/User';
-            } else {
-                document.getElementById('changeKeySection').classList.add('hidden');
-                document.getElementById('saveServerBtn').textContent = serverMode === 'login' ? 'Connect' : 'Register Now';
-            }
-
-            updateServerModeUI();
-            document.getElementById('serverModal').classList.remove('hidden');
-        }
 
         function updateServerModeUI() {
             const loginBtn = document.getElementById('modeLoginBtn');
@@ -1309,22 +1441,19 @@
             const saveBtn = document.getElementById('saveServerBtn');
 
             if (serverMode === 'login') {
-                loginBtn.className = "flex-1 py-1 rounded bg-white dark:bg-gray-600 shadow-sm text-sm font-medium";
-                registerBtn.className = "flex-1 py-1 rounded text-sm font-medium text-gray-500 dark:text-gray-400";
-                saveBtn.textContent = (serverUrl && apiUsername) ? 'Update URL/User' : 'Connect';
+                loginBtn.className = "flex-1 py-1.5 rounded-md bg-white dark:bg-gray-700 shadow-sm text-xs font-bold text-gray-800 dark:text-white";
+                registerBtn.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-gray-400 hover:text-gray-500 transition-colors";
+                saveBtn.textContent = (serverUrl && apiUsername) ? 'Update Connection' : 'Connect & Sync';
             } else {
-                registerBtn.className = "flex-1 py-1 rounded bg-white dark:bg-gray-600 shadow-sm text-sm font-medium";
-                loginBtn.className = "flex-1 py-1 rounded text-sm font-medium text-gray-500 dark:text-gray-400";
-                saveBtn.textContent = 'Register Now';
+                registerBtn.className = "flex-1 py-1.5 rounded-md bg-white dark:bg-gray-700 shadow-sm text-xs font-bold text-gray-800 dark:text-white";
+                loginBtn.className = "flex-1 py-1.5 rounded-md text-xs font-bold text-gray-400 hover:text-gray-500 transition-colors";
+                saveBtn.textContent = 'Create Account Now';
             }
         }
 
         document.getElementById('modeLoginBtn').onclick = () => { serverMode = 'login'; updateServerModeUI(); };
         document.getElementById('modeRegisterBtn').onclick = () => { serverMode = 'register'; updateServerModeUI(); };
 
-        document.getElementById('closeServerBtn').onclick = () => {
-            document.getElementById('serverModal').classList.add('hidden');
-        };
 
         document.getElementById('saveServerBtn').onclick = async () => {
             const newUrl = document.getElementById('serverUrlInput').value.trim();
@@ -1369,7 +1498,10 @@
                 localStorage.setItem('apiUsername', apiUsername);
                 localStorage.setItem('apiKey', apiKey);
 
-                document.getElementById('serverModal').classList.add('hidden');
+                storageMode = 'server';
+                localStorage.setItem('storageMode', 'server');
+
+                document.getElementById('storageModal').classList.add('hidden');
                 updateBreadcrumb();
                 listFiles();
             } catch (e) {
@@ -1460,16 +1592,28 @@
         loadSettings();
         updateWordCount();
         updateSecurityStatus();
-        updateBreadcrumb(); // Ensure Breadcrumb is correct at start
+        updateBreadcrumb();
 
-        // If no directory is selected and no server username is stored, show the server modal
-        setTimeout(() => {
-            if (!directoryHandle && !apiUsername) {
-                openServerModal();
+        // Environment-aware startup
+        setTimeout(async () => {
+            await checkServerAbility();
+
+            // If it's a local file and we can't reach a server, don't nag the user
+            if (!isHosted() && !isServerAvailable) {
+                if (!directoryHandle) {
+                    const s = document.getElementById('saveStatus');
+                    if (s) s.textContent = 'Running in Local Mode. Select a directory to save files.';
+                }
+                return;
+            }
+
+            // Normal server-nag logic for when server is actually an option
+            if (!directoryHandle && !apiUsername && isServerAvailable) {
+                openStorageModal('server');
                 const s = document.getElementById('saveStatus');
                 if (s) {
-                    s.textContent = 'Please login or register to use the server storage';
-                    setTimeout(() => { if (s.textContent === 'Please login or register to use the server storage') s.textContent = ''; }, 7000);
+                    s.textContent = 'Server detected. Please login or continue with local files.';
+                    setTimeout(() => { if (s.textContent?.includes('Server detected')) s.textContent = ''; }, 7000);
                 }
             }
         }, 800);
