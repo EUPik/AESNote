@@ -198,9 +198,9 @@
     </style>
 </head>
 
-<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white">
+<body class="bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white flex flex-col h-screen overflow-hidden">
     <!-- Top Banner -->
-    <header class="bg-blue-600 text-white p-2 fixed top-0 left-0 right-0 z-10">
+    <header class="bg-blue-600 text-white p-2 z-10 shrink-0">
         <div class="flex justify-between items-center">
             <div class="text-xl font-bold">AESNote</div>
             <div id="breadcrumb" class="flex-1 text-center">No directory selected</div>
@@ -227,7 +227,7 @@
     </header>
 
     <!-- Main Content -->
-    <div id="mainContent" class="flex h-screen dark:bg-gray-800">
+    <div id="mainContent" class="flex flex-1 overflow-hidden dark:bg-gray-800">
         <!-- Sidebar -->
         <aside id="sidebar" class="w-64 bg-gray-200 p-4 overflow-y-auto dark:bg-black dark:text-white">
             <h3 class="text-lg font-semibold mb-4">Files</h3>
@@ -235,7 +235,7 @@
         </aside>
 
         <!-- Editor -->
-        <main class="flex-1 p-1">
+        <main class="flex-1 p-1 flex flex-col min-w-0">
             <div class="mb-2 space-x-2 dark:bg-black">
                 <button onclick="document.execCommand('bold')"
                     class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">B</button>
@@ -249,13 +249,13 @@
                     class="bg-gray-200 px-3 py-1 rounded dark:bg-black dark:text-white">1.</button>
             </div>
             <div id="editor" contenteditable="true"
-                class="w-full h-full border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:text-white rounded shadow text-lg">
+                class="w-full flex-1 overflow-y-auto border border-gray-300 p-3 bg-white dark:bg-gray-800 dark:text-white rounded shadow text-lg">
             </div>
         </main>
     </div>
 
     <!-- Status Bar -->
-    <footer class="bg-gray-300 p-1 fixed bottom-0 left-0 right-0 text-sm dark:bg-gray-800 dark:text-white">
+    <footer class="bg-gray-300 p-1 text-sm dark:bg-gray-800 dark:text-white shrink-0">
         <div class="flex justify-between">
             <div id="wordCount">Words: 0 | Chars: 0</div>
             <div id="saveStatus"></div>
@@ -415,7 +415,13 @@
         }
         let apiUsername = localStorage.getItem('apiUsername') || '';
         let apiKey = localStorage.getItem('apiKey') || '';
+        
         let storageMode = localStorage.getItem('storageMode') || (apiUsername ? 'server' : 'local');
+        // Force local mode only when running locally (not hosted)
+        if (!isHosted()) {
+            storageMode = 'local';
+            localStorage.setItem('storageMode', 'local');
+        }
 
         // Initialize IndexedDB
         function initDB() {
@@ -631,7 +637,11 @@
                     alert('Your browser does not support directory selection. Please use Chrome or Edge with the latest updates.');
                     return;
                 }
-                const handle = await window.showDirectoryPicker();
+                const options = {};
+                if (directoryHandle && isValidDirectoryHandle(directoryHandle)) {
+                    options.startIn = directoryHandle;
+                }
+                const handle = await window.showDirectoryPicker(options);
                 // Ensure we have read/write permission for the selected directory
                 const hasPerm = await ensureDirectoryPermission(handle, 'readwrite');
                 if (!hasPerm) {
@@ -1136,46 +1146,8 @@
 
         // Apply layout on initial load and when screen size/orientation changes
         function adjustLayoutSpacing() {
-            try {
-                const header = document.querySelector('header');
-                const footer = document.querySelector('footer');
-                const main = document.getElementById('mainContent');
-                const editor = document.getElementById('editor');
-                const headerHeight = header ? header.offsetHeight : 0;
-                const footerHeight = footer ? footer.offsetHeight : 0;
-
-                // Apply padding to main content so header does not overlap
-                if (main) {
-                    // Remove any existing padding-top first, then apply new value
-                    main.style.paddingTop = '';
-                    // Apply exact header height to ensure no gap
-                    main.style.paddingTop = headerHeight + 'px';
-
-                    // Also ensure mainContent has proper positioning to work with fixed header
-                    main.style.position = 'relative';
-                    main.style.top = '0';
-
-                    // Remove any margin that might cause gaps
-                    main.style.marginTop = '0';
-
-                    // Ensure no border spacing
-                    main.style.borderTop = '0';
-
-                    // Force the padding to be applied by setting it again
-                    main.style.paddingTop = headerHeight + 'px';
-                }
-
-                // Set editor height to fit between header and footer
-                if (editor) {
-                    const extra = 12; // small gap
-                    const desired = `calc(100vh - ${headerHeight + footerHeight}px - ${extra}px)`;
-                    editor.style.height = desired;
-                    editor.style.overflow = 'auto';
-                    console.log('Applied height to editor:', desired);
-                }
-            } catch (e) {
-                console.warn('adjustLayoutSpacing failed', e);
-            }
+            // Layout is now handled completely by CSS flexbox.
+            // This function is kept empty to avoid breaking any existing calls.
         }
 
         // Header overflow detection and compact menu handling
@@ -1362,6 +1334,27 @@
             }
 
             updateServerModeUI();
+
+            // Detect environment and hide tabs accordingly
+            const tabLocalBtn = document.getElementById('tabLocalBtn');
+            const tabServerBtn = document.getElementById('tabServerBtn');
+            const tabsContainer = tabLocalBtn.parentElement;
+            
+            if (isHosted()) {
+                // If hosted on server, keep both options available
+                tabLocalBtn.style.display = 'block';
+                tabServerBtn.style.display = 'block';
+                tabsContainer.classList.add('flex');
+                tabsContainer.classList.remove('hidden');
+                // initialTab remains whatever was passed, or defaults
+            } else {
+                // If running locally, hide Cloud Sync option
+                tabServerBtn.style.display = 'none';
+                tabLocalBtn.style.display = 'block';
+                tabsContainer.classList.remove('flex');
+                tabsContainer.classList.add('hidden'); // Hide the tab bar completely since there's only one option
+                initialTab = 'local';
+            }
 
             // Set initial tab
             const targetTab = initialTab || storageMode;
