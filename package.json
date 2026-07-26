@@ -1,0 +1,9 @@
+{
+  "name": "AESNote",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Development server not configured'",
+    "build": "copy Note.html dist\\index.html"
+  }
+}
